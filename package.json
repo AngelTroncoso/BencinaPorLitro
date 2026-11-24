@@ -1,0 +1,24 @@
+{
+  "name": "bencinas-chile-waze",
+  "version": "1.0.0",
+  "description": "Buscador de bencinas más baratas en Chile con filtros por región y comuna e integración con Waze",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "keywords": [
+    "chile",
+    "bencinas",
+    "combustibles",
+    "waze",
+    "cne",
+    "precios",
+    "copec",
+    "shell",
+    "petrobras",
+    "aramco"
+  ],
+  "author": "Antigravity",
+  "license": "MIT"
+}

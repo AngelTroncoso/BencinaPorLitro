@@ -1,0 +1,171 @@
+:root {
+  --primary: #0284c7;
+  --primary-hover: #0369a1;
+  --primary-light: #e0f2fe;
+  --waze: #05c8f6;
+  --waze-hover: #00b4df;
+  --waze-dark: #0284a8;
+  --success: #10b981;
+  --success-bg: #ecfdf5;
+  --warning: #f59e0b;
+  --warning-bg: #fffbeb;
+  --danger: #ef4444;
+  --danger-bg: #fef2f2;
+  --copec: #0055a5;
+  --shell: #e11d48;
+  --petrobras: #047857;
+  --aramco: #0284c7;
+  --jlc: #d97706;
+}
+
+/* Custom scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* Leaflet Map Styling */
+#map {
+  width: 100%;
+  height: 100%;
+  min-height: 400px;
+  border-radius: 1rem;
+  z-index: 10;
+}
+
+/* Custom Leaflet Price Badge Marker */
+.price-marker-pin {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: #ffffff;
+  color: #0f172a;
+  padding: 4px 8px;
+  border-radius: 20px;
+  font-weight: 700;
+  font-size: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.18);
+  border: 2px solid #cbd5e1;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  white-space: nowrap;
+}
+
+.price-marker-pin:hover {
+  transform: scale(1.1) translateY(-2px);
+  z-index: 9999 !important;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+}
+
+.price-marker-pin.is-cheapest {
+  background: #10b981;
+  color: #ffffff;
+  border-color: #059669;
+  box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.3), 0 4px 12px rgba(0,0,0,0.15);
+  animation: pulse-border 2s infinite;
+}
+
+.price-marker-pin.is-expensive {
+  border-color: #fca5a5;
+  background: #fff5f5;
+  color: #b91c1c;
+}
+
+.price-marker-brand-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+@keyframes pulse-border {
+  0% {
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.6);
+  }
+  70% {
+    box-shadow: 0 0 0 8px rgba(16, 185, 129, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
+  }
+}
+
+/* Custom Leaflet Popup */
+.leaflet-popup-content-wrapper {
+  border-radius: 1rem !important;
+  padding: 0 !important;
+  overflow: hidden;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2), 0 8px 10px -6px rgba(0, 0, 0, 0.1) !important;
+}
+
+.leaflet-popup-content {
+  margin: 0 !important;
+  line-height: 1.5;
+}
+
+.leaflet-popup-tip {
+  background: #ffffff !important;
+}
+
+/* Waze Button styling */
+.btn-waze {
+  background-color: var(--waze);
+  color: #042940;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.625rem 1.25rem;
+  border-radius: 0.75rem;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 14px rgba(5, 200, 246, 0.35);
+  text-decoration: none;
+}
+
+.btn-waze:hover {
+  background-color: var(--waze-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(5, 200, 246, 0.45);
+}
+
+.btn-waze:active {
+  transform: translateY(0);
+}
+
+/* Card hover */
+.station-card {
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  border: 1px solid #e2e8f0;
+}
+
+.station-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 24px -6px rgba(0, 0, 0, 0.08), 0 4px 10px -4px rgba(0, 0, 0, 0.04);
+  border-color: #cbd5e1;
+}
+
+.station-card.selected {
+  border-color: #0284c7;
+  ring: 2px solid #0284c7;
+}
+
+/* Mobile sticky toggle bar */
+@media (max-width: 1023px) {
+  .mobile-view-map #list-container {
+    display: none !important;
+  }
+  .mobile-view-list #map-container {
+    display: none !important;
+  }
+}

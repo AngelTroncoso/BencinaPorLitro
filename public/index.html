@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bencinas Más Baratas de Chile 🚗⛽ | Conexión Directa con Waze</title>
+  
+  <!-- Meta tags SEO -->
+  <meta name="description" content="Encuentra el precio de las bencinas más baratas en Chile con filtro por región y comuna. Llega directo a la bencinera con un clic en Waze.">
+  <meta name="theme-color" content="#0284c7">
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Google Fonts: Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Leaflet CSS & JS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="css/style.css">
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Plus Jakarta Sans', 'system-ui', 'sans-serif'],
+          },
+          colors: {
+            waze: {
+              DEFAULT: '#05c8f6',
+              hover: '#00b4df',
+              dark: '#0284a8',
+            }
+          }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="bg-slate-100 text-slate-800 font-sans min-h-screen flex flex-col antialiased">
+
+  <!-- Top Navbar -->
+  <header class="bg-white border-b border-slate-200 sticky top-0 z-40 shadow-sm">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-16">
+        
+        <!-- Brand Logo -->
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-sky-600 via-sky-500 to-cyan-400 flex items-center justify-center text-white shadow-md shadow-sky-200">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+            </svg>
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="text-lg font-black tracking-tight text-slate-900">Bencina<span class="text-sky-600">Chile</span></span>
+              <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-cyan-100 text-cyan-800 border border-cyan-200">
+                + WAZE 🚗
+              </span>
+            </div>
+            <p class="text-[11px] text-slate-400 font-medium hidden sm:block">Precios más convenientes de Chile en tiempo real</p>
+          </div>
+        </div>
+
+        <!-- Acciones Header -->
+        <div class="flex items-center gap-2">
+          <!-- Botón Cerca de mí (GPS) -->
+          <button 
+            id="btn-near-me"
+            type="button" 
+            class="inline-flex items-center gap-1.5 px-3 py-2 text-xs md:text-sm font-bold rounded-xl bg-sky-50 text-sky-700 hover:bg-sky-100 border border-sky-200 transition-colors">
+            <svg class="w-4 h-4 text-sky-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 11c0 3.517-1.009 6.799-2.753 9.571m-3.44-2.04l.054-.09A13.916 13.916 0 008 11a4 4 0 118 0c0 1.017-.07 2.019-.203 3m-2.118 6.844A21.88 21.88 0 0015.171 17m3.839 1.132c.645-2.266.99-4.659.99-7.132A8 8 0 004 11m0 0a8 8 0 0016 0z"/>
+            </svg>
+            <span>Cerca de mí</span>
+          </button>
+
+          <!-- Botón Configuración CNE API -->
+          <button 
+            id="btn-open-settings"
+            type="button"
+            class="p-2 text-slate-500 hover:text-slate-800 hover:bg-slate-100 rounded-xl transition-colors"
+            title="Configuración de API CNE">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+            </svg>
+          </button>
+        </div>
+
+      </div>
+    </div>
+  </header>
+
+  <!-- Filtros Principales -->
+  <section class="bg-white border-b border-slate-200/80 shadow-sm py-4">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-3.5">
+      
+      <!-- Fila 1: Filtros de Región y Comuna + Buscador -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-3">
+        
+        <!-- Región -->
+        <div class="lg:col-span-4">
+          <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+            📍 Región de Chile
+          </label>
+          <div class="relative">
+            <select id="region-select" class="w-full bg-slate-50 border border-slate-300 text-slate-900 text-sm font-medium rounded-xl p-2.5 pr-8 focus:ring-2 focus:ring-sky-500 focus:border-sky-500 transition-all cursor-pointer">
+              <!-- Se rellena con JS -->
+            </select>
+          </div>
+        </div>
+
+        <!-- Comuna -->
+        <div class="lg:col-span-4">
+          <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+            🏙️ Comuna
+          </label>
+          <div class="relative">
+            <select id="comuna-select" class="w-full bg-slate-50 border border-slate-300 text-slate-900 text-sm font-medium rounded-xl p-2.5 pr-8 focus:ring-2 focus:ring-sky-500 focus:border-sky-500 transition-all cursor-pointer">
+              <!-- Se rellena con JS -->
+            </select>
+          </div>
+        </div>
+
+        <!-- Búsqueda rápida por texto -->
+        <div class="sm:col-span-2 lg:col-span-4">
+          <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+            🔍 Buscar por calle o bencinera
+          </label>
+          <div class="relative">
+            <input 
+              type="text" 
+              id="search-input" 
+              placeholder="Ej: Av. Matta, Copec, Apoquindo..."
+              class="w-full bg-slate-50 border border-slate-300 text-slate-900 text-sm rounded-xl p-2.5 pl-9 focus:ring-2 focus:ring-sky-500 focus:border-sky-500 transition-all">
+            <svg class="w-4 h-4 text-slate-400 absolute left-3 top-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+            </svg>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Fila 2: Chips de Selección de Combustible -->
+      <div>
+        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+          ⛽ Tipo de Combustible
+        </label>
+        <div id="fuel-type-chips" class="flex items-center gap-2 overflow-x-auto pb-1 no-scrollbar">
+          <!-- Chips renderizados con JS -->
+        </div>
+      </div>
+
+      <!-- Fila 3: Filtros Secundarios (Marca, Ordenar, Capacidad de Estanque) -->
+      <div class="flex flex-wrap items-center justify-between gap-3 pt-2 border-t border-slate-100 text-xs">
+        
+        <div class="flex flex-wrap items-center gap-3">
+          <!-- Filtro Marca -->
+          <div class="flex items-center gap-1.5">
+            <span class="text-slate-500 font-semibold">Marca:</span>
+            <select id="brand-filter" class="bg-slate-100 border border-slate-200 text-slate-800 text-xs font-medium rounded-lg px-2.5 py-1.5 focus:ring-1 focus:ring-sky-500">
+              <option value="all">Todas las marcas</option>
+              <option value="copec">Copec</option>
+              <option value="shell">Shell</option>
+              <option value="petrobras">Petrobras</option>
+              <option value="aramco">Aramco</option>
+              <option value="jlc">JLC</option>
+            </select>
+          </div>
+
+          <!-- Ordenar por -->
+          <div class="flex items-center gap-1.5">
+            <span class="text-slate-500 font-semibold">Ordenar:</span>
+            <select id="sort-filter" class="bg-slate-100 border border-slate-200 text-slate-800 text-xs font-medium rounded-lg px-2.5 py-1.5 focus:ring-1 focus:ring-sky-500">
+              <option value="price-asc">🏷️ Menor precio primero</option>
+              <option value="distance">📍 Menor distancia (GPS)</option>
+              <option value="price-desc">📈 Mayor precio</option>
+              <option value="rating">⭐ Mejor valoración</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Calculadora de Estanque -->
+        <div class="flex items-center gap-2 bg-emerald-50 text-emerald-800 px-3 py-1.5 rounded-xl border border-emerald-200">
+          <span class="font-bold flex items-center gap-1">
+            <svg class="w-3.5 h-3.5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
+            </svg>
+            Estanque:
+          </span>
+          <select id="tank-capacity-select" class="bg-white border border-emerald-300 text-emerald-900 text-xs font-bold rounded-lg px-2 py-0.5">
+            <option value="40">40 Litros</option>
+            <option value="50" selected>50 Litros</option>
+            <option value="60">60 Litros</option>
+            <option value="70">70 Litros</option>
+          </select>
+        </div>
+
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Banner de Estadísticas de Ahorro y Precios en la Comuna -->
+  <section id="stats-summary-bar" class="bg-gradient-to-r from-sky-900 via-slate-900 to-indigo-950 text-white py-3 shadow-inner">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-center divide-x divide-slate-800/80">
+        
+        <div>
+          <span class="text-[11px] uppercase tracking-wider text-slate-400 font-semibold block">Más barata detectada</span>
+          <span id="stat-min-price" class="text-xl md:text-2xl font-black text-emerald-400">$0</span>
+        </div>
+
+        <div>
+          <span class="text-[11px] uppercase tracking-wider text-slate-400 font-semibold block">Precio promedio zona</span>
+          <span id="stat-avg-price" class="text-xl md:text-2xl font-black text-slate-200">$0</span>
+        </div>
+
+        <div>
+          <span class="text-[11px] uppercase tracking-wider text-slate-400 font-semibold block">Ahorro estanque lleno</span>
+          <span id="stat-savings-amount" class="text-xl md:text-2xl font-black text-amber-400">$0</span>
+        </div>
+
+        <div class="hidden md:block">
+          <span class="text-[11px] uppercase tracking-wider text-slate-400 font-semibold block">Combustible activo</span>
+          <span id="stat-fuel-label" class="text-sm md:text-base font-bold text-sky-300">Gasolina 93</span>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- Loading Spinner -->
+  <div id="loading-indicator" class="hidden fixed inset-0 bg-slate-900/30 backdrop-blur-sm z-50 flex items-center justify-center">
+    <div class="bg-white rounded-2xl p-6 shadow-2xl flex flex-col items-center gap-3">
+      <div class="animate-spin rounded-full h-10 w-10 border-4 border-sky-600 border-t-transparent"></div>
+      <p class="text-sm font-bold text-slate-700">Actualizando precios y bencineras...</p>
+    </div>
+  </div>
+
+  <!-- Contenido Principal (Split View: Lista & Mapa) -->
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-5">
+    
+    <div id="app-main-layout" class="grid grid-cols-1 lg:grid-cols-12 gap-6 min-h-[620px] mobile-view-list">
+      
+      <!-- Columna Izquierda: Lista de Estaciones -->
+      <section id="list-container" class="lg:col-span-6 flex flex-col space-y-4">
+        
+        <div class="flex items-center justify-between pb-1">
+          <div class="flex items-center gap-2">
+            <h2 class="text-base font-bold text-slate-900">Bencineras Ordenadas</h2>
+            <span id="stations-count-badge" class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-slate-200 text-slate-700">
+              0 encontradas
+            </span>
+          </div>
+          <span class="text-xs text-slate-500 font-medium hidden sm:inline">
+            Toca una para verla en el mapa
+          </span>
+        </div>
+
+        <!-- Lista scrollable -->
+        <div id="stations-list" class="space-y-3.5 flex-1 overflow-y-auto max-h-[750px] pr-1">
+          <!-- Rellenado dinámico con JS -->
+        </div>
+
+      </section>
+
+      <!-- Columna Derecha: Mapa Interactivo -->
+      <section id="map-container" class="lg:col-span-6 h-[500px] lg:h-[750px] sticky top-24 rounded-2xl overflow-hidden shadow-lg border border-slate-200 bg-white">
+        <div id="map"></div>
+      </section>
+
+    </div>
+
+  </main>
+
+  <!-- Barra Flotante para Móviles (Toggle Mapa / Lista) -->
+  <div class="lg:hidden fixed bottom-4 left-1/2 -translate-x-1/2 z-30 bg-white/95 backdrop-blur-md border border-slate-300 p-1 rounded-2xl shadow-xl flex items-center gap-1">
+    <button 
+      id="mobile-toggle-list"
+      type="button" 
+      class="px-4 py-2 text-xs font-bold rounded-xl transition-all flex items-center gap-1.5 bg-sky-600 text-white">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"/>
+      </svg>
+      <span>Lista</span>
+    </button>
+    <button 
+      id="mobile-toggle-map"
+      type="button" 
+      class="px-4 py-2 text-xs font-bold rounded-xl transition-all flex items-center gap-1.5 bg-white text-slate-700">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"/>
+      </svg>
+      <span>Ver Mapa</span>
+    </button>
+  </div>
+
+  <!-- Modal de Configuración CNE API -->
+  <div id="settings-modal" class="hidden fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-100">
+      <div class="flex items-center justify-between mb-4">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-xl bg-sky-100 text-sky-700 flex items-center justify-center">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+          </div>
+          <h3 class="font-bold text-slate-900 text-lg">Conexión API CNE</h3>
+        </div>
+        <button id="btn-close-settings" class="text-slate-400 hover:text-slate-600 p-1">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+          </svg>
+        </button>
+      </div>
+
+      <p class="text-xs text-slate-500 mb-4 leading-relaxed">
+        La aplicación incluye una base de datos enriquecida con precios reales y actualizados. Opcionalmente puedes conectar tu token oficial de la <strong>Comisión Nacional de Energía (CNE Chile)</strong> para sincronización en vivo.
+      </p>
+
+      <div class="mb-4">
+        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+          Token de Acceso CNE (Opcional)
+        </label>
+        <input 
+          type="text" 
+          id="cne-token-input" 
+          placeholder="Ingresa tu token CNE o déjalo en blanco"
+          class="w-full bg-slate-50 border border-slate-300 text-slate-900 text-sm rounded-xl p-3 focus:ring-2 focus:ring-sky-500 focus:border-sky-500 font-mono">
+        <span class="text-[11px] text-slate-400 block mt-1">
+          Puedes obtener un token gratuito en <a href="https://api.cne.cl" target="_blank" class="text-sky-600 underline">api.cne.cl</a>.
+        </span>
+      </div>
+
+      <div class="flex items-center justify-end gap-2 pt-3 border-t border-slate-100">
+        <button 
+          id="btn-save-cne" 
+          type="button"
+          class="w-full py-2.5 px-4 bg-sky-600 hover:bg-sky-700 text-white font-bold text-sm rounded-xl shadow-md shadow-sky-200 transition-colors">
+          Guardar Configuración
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer Informativo -->
+  <footer class="bg-white border-t border-slate-200 mt-auto py-6">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-500">
+      <div class="flex items-center gap-2">
+        <span>🇨🇱 Desarrollado para conductores en Chile</span>
+        <span>•</span>
+        <span>Conexión directa con <strong>Waze</strong> & <strong>Google Maps</strong></span>
+      </div>
+      <div>
+        <span>Datos referenciales basados en CNE y distribuidores oficiales.</span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Scripts de la Aplicación -->
+  <script src="js/chile-data.js"></script>
+  <script src="js/gas-stations.js"></script>
+  <script src="js/cne-service.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
