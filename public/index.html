@@ -70,6 +70,17 @@
 
         <!-- Acciones Header -->
         <div class="flex items-center gap-2">
+          <!-- Botón Coarena AI Search -->
+          <button 
+            id="btn-open-coarena"
+            type="button" 
+            class="inline-flex items-center gap-1.5 px-3 py-2 text-xs md:text-sm font-bold rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white shadow-sm shadow-indigo-200 transition-all">
+            <svg class="w-4 h-4 text-violet-200 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+            </svg>
+            <span>IA Coarena</span>
+          </button>
+
           <!-- Botón Cerca de mí (GPS) -->
           <button 
             id="btn-near-me"
@@ -81,12 +92,12 @@
             <span>Cerca de mí</span>
           </button>
 
-          <!-- Botón Configuración CNE API -->
+          <!-- Botón Configuración de APIs -->
           <button 
             id="btn-open-settings"
             type="button"
             class="p-2 text-slate-500 hover:text-slate-800 hover:bg-slate-100 rounded-xl transition-colors"
-            title="Configuración de API CNE">
+            title="Configuración de APIs (Coarena & CNE)">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
@@ -303,17 +314,21 @@
     </button>
   </div>
 
-  <!-- Modal de Configuración CNE API -->
+  <!-- Modal de Configuración de APIs (Coarena & CNE) -->
   <div id="settings-modal" class="hidden fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-    <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-100">
-      <div class="flex items-center justify-between mb-4">
+    <div class="bg-white rounded-3xl max-w-lg w-full p-6 shadow-2xl border border-slate-100 max-h-[90vh] overflow-y-auto">
+      <div class="flex items-center justify-between mb-4 pb-3 border-b border-slate-100">
         <div class="flex items-center gap-2.5">
-          <div class="w-8 h-8 rounded-xl bg-sky-100 text-sky-700 flex items-center justify-center">
+          <div class="w-9 h-9 rounded-xl bg-violet-100 text-violet-700 flex items-center justify-center">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
             </svg>
           </div>
-          <h3 class="font-bold text-slate-900 text-lg">Conexión API CNE</h3>
+          <div>
+            <h3 class="font-bold text-slate-900 text-lg leading-tight">Configuración de APIs</h3>
+            <p class="text-xs text-slate-500">Conecta tu API gratuita de Coarena y CNE</p>
+          </div>
         </div>
         <button id="btn-close-settings" class="text-slate-400 hover:text-slate-600 p-1">
           <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -322,32 +337,151 @@
         </button>
       </div>
 
-      <p class="text-xs text-slate-500 mb-4 leading-relaxed">
-        La aplicación incluye una base de datos enriquecida con precios reales y actualizados. Opcionalmente puedes conectar tu token oficial de la <strong>Comisión Nacional de Energía (CNE Chile)</strong> para sincronización en vivo.
-      </p>
+      <!-- Sección Coarena API -->
+      <div class="mb-5 bg-gradient-to-br from-violet-50/70 to-indigo-50/70 p-4 rounded-2xl border border-violet-100">
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-xs font-black uppercase tracking-wider text-violet-900 flex items-center gap-1.5">
+            <span class="w-2 h-2 rounded-full bg-violet-600 animate-ping"></span>
+            🤖 API Coarena (Búsquedas en Internet con IA)
+          </span>
+          <span id="coarena-status-badge" class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-200 text-slate-600">
+            No configurada
+          </span>
+        </div>
+        <p class="text-xs text-slate-600 mb-3 leading-relaxed">
+          Permite realizar búsquedas inteligentes, comparaciones de combustible y consultas en lenguaje natural integradas con Waze.
+        </p>
 
-      <div class="mb-4">
-        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
-          Token de Acceso CNE (Opcional)
+        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+          Clave API Coarena (APIKEY_COARENA)
         </label>
+        <div class="relative mb-2">
+          <input 
+            type="password" 
+            id="coarena-api-key-input" 
+            placeholder="Pega aquí tu clave API de Coarena"
+            class="w-full bg-white border border-violet-200 text-slate-900 text-sm rounded-xl p-2.5 pr-10 focus:ring-2 focus:ring-violet-500 font-mono">
+          <button 
+            type="button" 
+            id="btn-toggle-coarena-key" 
+            class="absolute right-3 top-2.5 text-slate-400 hover:text-slate-600 text-xs font-semibold">
+            Ver
+          </button>
+        </div>
+
+        <div class="flex items-center justify-between text-[11px] text-slate-500">
+          <span>Obtén tu clave gratuita en:</span>
+          <a href="https://coarena.ai/account/api" target="_blank" rel="noopener noreferrer" class="font-bold text-violet-700 hover:underline inline-flex items-center gap-1">
+            coarena.ai/account/api ↗
+          </a>
+        </div>
+      </div>
+
+      <!-- Sección CNE API -->
+      <div class="mb-5 bg-slate-50 p-4 rounded-2xl border border-slate-200">
+        <span class="text-xs font-black uppercase tracking-wider text-slate-700 block mb-1.5">
+          🇨🇱 Token CNE (Comisión Nacional de Energía)
+        </span>
+        <p class="text-xs text-slate-500 mb-3 leading-relaxed">
+          Sincronización directa con los datos oficiales de bencinas del gobierno de Chile.
+        </p>
         <input 
           type="text" 
           id="cne-token-input" 
           placeholder="Ingresa tu token CNE o déjalo en blanco"
-          class="w-full bg-slate-50 border border-slate-300 text-slate-900 text-sm rounded-xl p-3 focus:ring-2 focus:ring-sky-500 focus:border-sky-500 font-mono">
-        <span class="text-[11px] text-slate-400 block mt-1">
-          Puedes obtener un token gratuito en <a href="https://api.cne.cl" target="_blank" class="text-sky-600 underline">api.cne.cl</a>.
-        </span>
+          class="w-full bg-white border border-slate-300 text-slate-900 text-sm rounded-xl p-2.5 focus:ring-2 focus:ring-sky-500 font-mono mb-2">
+        <div class="flex items-center justify-between text-[11px] text-slate-400">
+          <span>Token gratuito en:</span>
+          <a href="https://api.cne.cl" target="_blank" class="text-sky-600 font-semibold hover:underline">api.cne.cl ↗</a>
+        </div>
       </div>
 
       <div class="flex items-center justify-end gap-2 pt-3 border-t border-slate-100">
         <button 
-          id="btn-save-cne" 
+          id="btn-save-settings" 
           type="button"
-          class="w-full py-2.5 px-4 bg-sky-600 hover:bg-sky-700 text-white font-bold text-sm rounded-xl shadow-md shadow-sky-200 transition-colors">
-          Guardar Configuración
+          class="w-full py-3 px-4 bg-gradient-to-r from-violet-600 to-sky-600 hover:from-violet-700 hover:to-sky-700 text-white font-bold text-sm rounded-xl shadow-md shadow-violet-200 transition-all">
+          Guardar Todas las Configuraciones
         </button>
       </div>
+    </div>
+  </div>
+
+  <!-- Modal / Drawer Asistente Coarena AI Search -->
+  <div id="coarena-modal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-xl w-full p-5 sm:p-6 shadow-2xl border border-violet-100 flex flex-col max-h-[85vh]">
+      
+      <!-- Header Coarena Modal -->
+      <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+        <div class="flex items-center gap-2.5">
+          <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-violet-600 to-indigo-500 text-white flex items-center justify-center shadow-md shadow-violet-200">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+            </svg>
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <h3 class="font-bold text-slate-900 text-base sm:text-lg">Asistente Coarena AI</h3>
+              <span class="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-violet-100 text-violet-800 border border-violet-200">
+                Internet Search ⚡
+              </span>
+            </div>
+            <p class="text-xs text-slate-400">Pregunta en lenguaje natural sobre bencinas, rutas y ahorro</p>
+          </div>
+        </div>
+        <button id="btn-close-coarena" class="text-slate-400 hover:text-slate-600 p-1.5 rounded-xl hover:bg-slate-100 transition-colors">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Quick Prompt Chips -->
+      <div class="py-3 flex items-center gap-1.5 overflow-x-auto no-scrollbar border-b border-slate-50">
+        <button type="button" class="coarena-prompt-chip whitespace-nowrap text-xs font-semibold px-2.5 py-1.5 rounded-lg bg-slate-100 hover:bg-violet-50 hover:text-violet-700 text-slate-700 transition-colors">
+          ⛽ ¿Dónde está la 93 más barata aquí?
+        </button>
+        <button type="button" class="coarena-prompt-chip whitespace-nowrap text-xs font-semibold px-2.5 py-1.5 rounded-lg bg-slate-100 hover:bg-violet-50 hover:text-violet-700 text-slate-700 transition-colors">
+          💰 ¿Cuánto ahorro en un estanque de 50L?
+        </button>
+        <button type="button" class="coarena-prompt-chip whitespace-nowrap text-xs font-semibold px-2.5 py-1.5 rounded-lg bg-slate-100 hover:bg-violet-50 hover:text-violet-700 text-slate-700 transition-colors">
+          🏪 Bencineras 24h con tienda
+        </button>
+        <button type="button" class="coarena-prompt-chip whitespace-nowrap text-xs font-semibold px-2.5 py-1.5 rounded-lg bg-slate-100 hover:bg-violet-50 hover:text-violet-700 text-slate-700 transition-colors">
+          📈 Proyección precios esta semana
+        </button>
+      </div>
+
+      <!-- Historial y Respuesta AI -->
+      <div id="coarena-chat-history" class="flex-1 overflow-y-auto py-4 space-y-3 min-h-[220px]">
+        <div class="bg-violet-50/60 rounded-2xl p-4 text-xs text-slate-700 border border-violet-100">
+          <p class="font-bold text-violet-900 mb-1 flex items-center gap-1.5">
+            <span>👋 ¡Hola! Soy tu asistente de precios con IA Coarena.</span>
+          </p>
+          <p class="leading-relaxed">
+            Puedo comparar precios de bencina en Chile, calcular cuánto dinero te ahorras por litro o estanque completo y darte la mejor ruta directa a <strong>Waze</strong>. Hazme cualquier pregunta o toca uno de los botones rápidos de arriba.
+          </p>
+        </div>
+      </div>
+
+      <!-- Formulario de Entrada -->
+      <form id="coarena-form" class="pt-3 border-t border-slate-100 flex items-center gap-2">
+        <input 
+          type="text" 
+          id="coarena-query-input" 
+          placeholder="Escribe tu consulta (Ej: Recomiéndame la Copec más barata en Providencia)..."
+          class="flex-1 bg-slate-50 border border-slate-300 text-slate-900 text-sm rounded-xl p-3 focus:ring-2 focus:ring-violet-500 focus:border-violet-500">
+        <button 
+          type="submit" 
+          id="coarena-submit-btn"
+          class="px-4 py-3 bg-violet-600 hover:bg-violet-700 text-white font-bold text-sm rounded-xl shadow-md shadow-violet-200 transition-colors flex items-center gap-1.5 flex-shrink-0">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
+          </svg>
+          <span>Buscar</span>
+        </button>
+      </form>
+
     </div>
   </div>
 
@@ -358,6 +492,8 @@
         <span>🇨🇱 Desarrollado para conductores en Chile</span>
         <span>•</span>
         <span>Conexión directa con <strong>Waze</strong> & <strong>Google Maps</strong></span>
+        <span>•</span>
+        <span>Potenciado con <strong>Coarena AI</strong></span>
       </div>
       <div>
         <span>Datos referenciales basados en CNE y distribuidores oficiales.</span>
@@ -369,6 +505,7 @@
   <script src="js/chile-data.js"></script>
   <script src="js/gas-stations.js"></script>
   <script src="js/cne-service.js"></script>
+  <script src="js/coarena-service.js"></script>
   <script src="js/app.js"></script>
 </body>
 </html>

@@ -689,16 +689,32 @@ function setupEventListeners() {
     });
   }
 
-  // Modal de Configuración CNE API
+  // Modal de Configuración General (Coarena & CNE)
   const openSettingsBtn = document.getElementById("btn-open-settings");
   const closeSettingsBtn = document.getElementById("btn-close-settings");
   const settingsModal = document.getElementById("settings-modal");
-  const saveCneBtn = document.getElementById("btn-save-cne");
+  const saveSettingsBtn = document.getElementById("btn-save-settings");
   const cneInput = document.getElementById("cne-token-input");
+  const coarenaInput = document.getElementById("coarena-api-key-input");
+  const toggleKeyBtn = document.getElementById("btn-toggle-coarena-key");
+  const coarenaBadge = document.getElementById("coarena-status-badge");
+
+  function updateCoarenaBadge() {
+    if (!coarenaBadge) return;
+    if (coarenaService.hasApiKey()) {
+      coarenaBadge.textContent = "Activa ✓";
+      coarenaBadge.className = "px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-200";
+    } else {
+      coarenaBadge.textContent = "No configurada";
+      coarenaBadge.className = "px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-200 text-slate-600";
+    }
+  }
 
   if (openSettingsBtn && settingsModal) {
     openSettingsBtn.addEventListener("click", () => {
       if (cneInput) cneInput.value = cneService.getToken();
+      if (coarenaInput) coarenaInput.value = coarenaService.getApiKey();
+      updateCoarenaBadge();
       settingsModal.classList.remove("hidden");
     });
   }
@@ -709,12 +725,186 @@ function setupEventListeners() {
     });
   }
 
-  if (saveCneBtn && cneInput) {
-    saveCneBtn.addEventListener("click", () => {
-      cneService.setToken(cneInput.value);
+  if (toggleKeyBtn && coarenaInput) {
+    toggleKeyBtn.addEventListener("click", () => {
+      if (coarenaInput.type === "password") {
+        coarenaInput.type = "text";
+        toggleKeyBtn.textContent = "Ocultar";
+      } else {
+        coarenaInput.type = "password";
+        toggleKeyBtn.textContent = "Ver";
+      }
+    });
+  }
+
+  if (saveSettingsBtn) {
+    saveSettingsBtn.addEventListener("click", () => {
+      if (cneInput) cneService.setToken(cneInput.value);
+      if (coarenaInput) coarenaService.setApiKey(coarenaInput.value);
+      updateCoarenaBadge();
       settingsModal.classList.add("hidden");
-      alert("Token CNE guardado con éxito. Se actualizarán los precios oficiales.");
+      alert("Configuraciones guardadas correctamente.");
       loadStations();
     });
+  }
+
+  // Asistente Coarena AI
+  const openCoarenaBtn = document.getElementById("btn-open-coarena");
+  const closeCoarenaBtn = document.getElementById("btn-close-coarena");
+  const coarenaModal = document.getElementById("coarena-modal");
+  const coarenaForm = document.getElementById("coarena-form");
+  const coarenaQueryInput = document.getElementById("coarena-query-input");
+  const coarenaHistory = document.getElementById("coarena-chat-history");
+  const coarenaSubmitBtn = document.getElementById("coarena-submit-btn");
+
+  if (openCoarenaBtn && coarenaModal) {
+    openCoarenaBtn.addEventListener("click", () => {
+      coarenaModal.classList.remove("hidden");
+      if (coarenaQueryInput) coarenaQueryInput.focus();
+    });
+  }
+
+  if (closeCoarenaBtn && coarenaModal) {
+    closeCoarenaBtn.addEventListener("click", () => {
+      coarenaModal.classList.add("hidden");
+    });
+  }
+
+  // Quick chips de consulta
+  document.querySelectorAll(".coarena-prompt-chip").forEach(chip => {
+    chip.addEventListener("click", () => {
+      const promptText = chip.textContent.replace(/^[⛽💰🏪📈]\s*/, '').trim();
+      if (coarenaQueryInput) {
+        coarenaQueryInput.value = promptText;
+        handleCoarenaSubmit(promptText);
+      }
+    });
+  });
+
+  if (coarenaForm) {
+    coarenaForm.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const query = coarenaQueryInput?.value?.trim();
+      if (!query) return;
+      handleCoarenaSubmit(query);
+    });
+  }
+
+  async function handleCoarenaSubmit(query) {
+    if (!coarenaHistory) return;
+
+    // Verificar si hay clave o avisar amablemente
+    if (!coarenaService.hasApiKey()) {
+      renderUserMessage(query);
+      renderBotMessage(`⚠️ <strong>API Key de Coarena no encontrada</strong><br><br>Para realizar consultas y búsquedas con IA, ingresa tu <strong>APIKEY_COARENA</strong> en <button type="button" onclick="document.getElementById('coarena-modal').classList.add('hidden'); document.getElementById('btn-open-settings').click();" class="text-violet-600 font-bold underline">Configuración de APIs</button>.<br><br>Puedes obtener tu clave gratuita en <a href="https://coarena.ai/account/api" target="_blank" class="text-violet-700 underline font-semibold">coarena.ai/account/api ↗</a>.`);
+      if (coarenaQueryInput) coarenaQueryInput.value = '';
+      return;
+    }
+
+    renderUserMessage(query);
+    if (coarenaQueryInput) coarenaQueryInput.value = '';
+
+    const loadingId = 'loading-' + Date.now();
+    renderLoadingIndicator(loadingId);
+
+    // Preparar contexto de la selección actual
+    const currentRegion = CHILE_REGIONS.find(r => r.id === state.regionId)?.name || 'Chile';
+    const currentFuel = FUEL_TYPES.find(f => f.id === state.fuelType)?.name || 'Gasolina';
+    const context = {
+      region: currentRegion,
+      comuna: state.comuna,
+      fuelName: currentFuel,
+      stations: state.filteredStations
+    };
+
+    if (coarenaSubmitBtn) coarenaSubmitBtn.disabled = true;
+
+    const result = await coarenaService.ask(query, context);
+
+    removeElement(loadingId);
+    if (coarenaSubmitBtn) coarenaSubmitBtn.disabled = false;
+
+    if (result.success) {
+      renderBotMessage(formatCoarenaResponse(result.answer));
+    } else {
+      renderBotMessage(`❌ <strong>Error al consultar Coarena:</strong> ${result.error || 'No se pudo obtener respuesta'}. Revisa que tu clave API sea válida.`);
+    }
+  }
+
+  function renderUserMessage(text) {
+    const div = document.createElement("div");
+    div.className = "flex justify-end";
+    div.innerHTML = `
+      <div class="bg-violet-600 text-white text-xs font-medium rounded-2xl rounded-tr-sm py-2.5 px-4 max-w-[85%] shadow-sm">
+        ${escapeHtml(text)}
+      </div>
+    `;
+    coarenaHistory.appendChild(div);
+    coarenaHistory.scrollTop = coarenaHistory.scrollHeight;
+  }
+
+  function renderBotMessage(htmlContent) {
+    const div = document.createElement("div");
+    div.className = "flex justify-start";
+    div.innerHTML = `
+      <div class="bg-slate-50 border border-slate-200 text-slate-800 text-xs rounded-2xl rounded-tl-sm p-4 max-w-[90%] shadow-sm space-y-2 leading-relaxed">
+        ${htmlContent}
+      </div>
+    `;
+    coarenaHistory.appendChild(div);
+    coarenaHistory.scrollTop = coarenaHistory.scrollHeight;
+  }
+
+  function renderLoadingIndicator(id) {
+    const div = document.createElement("div");
+    div.id = id;
+    div.className = "flex justify-start";
+    div.innerHTML = `
+      <div class="bg-slate-50 border border-slate-200 text-slate-500 text-xs rounded-2xl py-2.5 px-4 flex items-center gap-2">
+        <svg class="animate-spin h-3.5 w-3.5 text-violet-600" fill="none" viewBox="0 0 24 24">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+        </svg>
+        <span>Consultando modelo en Coarena AI...</span>
+      </div>
+    `;
+    coarenaHistory.appendChild(div);
+    coarenaHistory.scrollTop = coarenaHistory.scrollHeight;
+  }
+
+  function removeElement(id) {
+    const el = document.getElementById(id);
+    if (el) el.remove();
+  }
+
+  function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+  }
+
+  // Formateador de texto y enlaces Waze
+  function formatCoarenaResponse(rawText) {
+    if (!rawText) return '';
+    
+    let formatted = rawText
+      // Convertir negrita **texto** a <strong>
+      .replace(/\*\*(.*?)\*\*/g, '<strong class="text-slate-900">$1</strong>')
+      // Convertir listas con asterisco o guión
+      .replace(/^\s*[-*]\s+(.*)$/gm, '<li class="ml-4 list-disc">$1</li>')
+      // Convertir saltos de línea
+      .replace(/\n\n/g, '<br><br>')
+      .replace(/\n/g, '<br>');
+
+    // Convertir enlaces de Waze en botones interactivos con el icono oficial
+    formatted = formatted.replace(
+      /https:\/\/waze\.com\/ul\?ll=([-\d.]+),([-\d.]+)&navigate=yes/g,
+      `<a href="https://waze.com/ul?ll=$1,$2&navigate=yes" target="_blank" rel="noopener noreferrer" class="btn-waze inline-flex text-xs py-1.5 px-3 my-1">
+        ${WAZE_ICON_SVG}
+        <span>Ir con Waze</span>
+       </a>`
+    );
+
+    return formatted;
   }
 }

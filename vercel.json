@@ -1,6 +1,9 @@
 {
   "version": 2,
   "rewrites": [
+    { "source": "/api/coarena/search", "destination": "/api/coarena/search.js" },
+    { "source": "/api/cne/estaciones", "destination": "/api/cne/estaciones.js" },
+    { "source": "/api/status", "destination": "/api/status.js" },
     { "source": "/api/(.*)", "destination": "/api/$1" },
     { "source": "/(.*)", "destination": "/public/$1" }
   ]

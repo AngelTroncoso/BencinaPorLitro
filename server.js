@@ -58,6 +58,32 @@ const server = http.createServer((req, res) => {
     return;
   }
 
+  // Endpoint de Búsquedas Inteligentes con Coarena AI
+  if (pathname === '/api/coarena/search') {
+    let body = '';
+    req.on('data', chunk => { body += chunk; });
+    req.on('end', () => {
+      try {
+        req.body = body ? JSON.parse(body) : {};
+      } catch (e) {
+        req.body = {};
+      }
+      res.status = (code) => {
+        res.statusCode = code;
+        return {
+          json: (data) => {
+            res.setHeader('Content-Type', 'application/json; charset=utf-8');
+            res.end(JSON.stringify(data));
+          },
+          end: () => res.end()
+        };
+      };
+      const coarenaHandler = require('./api/coarena/search');
+      coarenaHandler(req, res);
+    });
+    return;
+  }
+
   // Servidor de archivos estáticos
   let relativePath = pathname === '/' ? 'index.html' : pathname.replace(/^\/+/, '');
   let filePath = path.join(PUBLIC_DIR, relativePath);

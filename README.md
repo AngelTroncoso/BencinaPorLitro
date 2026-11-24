@@ -43,6 +43,21 @@ Aplicación web moderna y responsiva desarrollada para encontrar en tiempo real 
    - Modal de configuración para conectar un token oficial de `api.cne.cl`.
    - Incluye fallback automático a base de datos realista y generador procedural para todas las 346 comunas de Chile.
 
+8. **🤖 Búsquedas e Inteligencia Artificial con Coarena AI:**
+   - Botón **"IA Coarena"** en la barra superior y modal de asistente inteligente.
+   - Permite consultar en lenguaje natural sobre bencinas, precios, cálculo de ahorro y proyecciones de tarifas.
+   - Genera respuestas estructuradas con enlaces directos para **"Ir con Waze"** hacia las bencineras recomendadas.
+   - Soporte para clave gratuita **`APIKEY_COARENA`** configurable directamente en la interfaz (icono ⚙️) o como variable de entorno en Vercel (`APIKEY_COARENA`).
+   - Obtén tu clave gratuita en: [coarena.ai/account/api](https://coarena.ai/account/api).
+
+---
+
+## 🔑 Variables de Entorno (Opcionales para Vercel)
+
+Si despliegas en Vercel, puedes agregar en los ajustes del proyecto (*Settings -> Environment Variables*):
+- `APIKEY_COARENA`: Tu clave API de Coarena para que esté disponible globalmente sin requerir que los usuarios la ingresen manualmente.
+- `CNE_TOKEN`: Token de acceso a la API CNE de Chile (opcional).
+
 ---
 
 ## 🛠️ Instalación y Ejecución
