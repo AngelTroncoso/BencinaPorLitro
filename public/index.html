@@ -3,11 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Bencinas Más Baratas de Chile 🚗⛽ | Conexión Directa con Waze</title>
+  <title>BencinaChile | Encuentra mejores precios para cargar</title>
   
   <!-- Meta tags SEO -->
-  <meta name="description" content="Encuentra el precio de las bencinas más baratas en Chile con filtro por región y comuna. Llega directo a la bencinera con un clic en Waze.">
-  <meta name="theme-color" content="#0284c7">
+  <meta name="description" content="Compara precios referenciales de combustible por comuna y encuentra una ruta directa a tu próxima estación.">
+  <meta name="theme-color" content="#0b1b2b">
+  <link rel="preload" as="image" href="img/hero-fuel-chile.webp" fetchpriority="high">
 
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -52,19 +53,15 @@
         
         <!-- Brand Logo -->
         <div class="flex items-center gap-3">
-          <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-sky-600 via-sky-500 to-cyan-400 flex items-center justify-center text-white shadow-md shadow-sky-200">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
-            </svg>
-          </div>
+          <img class="brand-mark" src="img/bencina-logo.svg" alt="" width="44" height="44">
           <div>
             <div class="flex items-center gap-2">
               <span class="text-lg font-black tracking-tight text-slate-900">Bencina<span class="text-sky-600">Chile</span></span>
               <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-cyan-100 text-cyan-800 border border-cyan-200">
-                + WAZE 🚗
+                RUTAS CON WAZE
               </span>
             </div>
-            <p class="text-[11px] text-slate-400 font-medium hidden sm:block">Precios más convenientes de Chile en tiempo real</p>
+            <p class="text-[11px] text-slate-400 font-medium hidden sm:block">Compara precios referenciales por comuna</p>
           </div>
         </div>
 
@@ -108,6 +105,29 @@
       </div>
     </div>
   </header>
+
+  <!-- Hero visual -->
+  <section class="hero-panel max-w-7xl w-full mx-auto mt-5 px-4 sm:px-6 lg:px-8" aria-labelledby="hero-title">
+    <div class="hero-panel__inner">
+      <img class="hero-panel__art" src="img/hero-fuel-chile.webp" alt="" width="2816" height="1584" fetchpriority="high">
+      <div class="hero-panel__copy">
+        <span class="hero-kicker"><span class="hero-kicker__dot"></span> TU RUTA, TU PRECIO</span>
+        <h1 id="hero-title">Carga mejor.<br><span>Muévete con confianza.</span></h1>
+        <p>Compara estaciones de tu comuna, revisa precios referenciales y abre la ruta en tu app de navegación.</p>
+        <a class="hero-cta" href="#region-select">
+          Explorar precios
+          <svg aria-hidden="true" viewBox="0 0 24 24" fill="none"><path d="M5 12h14m-6-6 6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </a>
+        <div class="hero-brand-strip" aria-label="Marcas de estaciones incluidas">
+          <span class="hero-brand hero-brand--copec"><b>CO</b> Copec</span>
+          <span class="hero-brand hero-brand--shell"><b>SH</b> Shell</span>
+          <span class="hero-brand hero-brand--petrobras"><b>PB</b> Petrobras</span>
+          <span class="hero-brand hero-brand--aramco"><b>AR</b> Aramco</span>
+          <span class="hero-brand hero-brand--jlc"><b>JL</b> JLC</span>
+        </div>
+      </div>
+    </div>
+  </section>
 
   <!-- Filtros Principales -->
   <section class="bg-white border-b border-slate-200/80 shadow-sm py-4">
@@ -327,7 +347,7 @@
           </div>
           <div>
             <h3 class="font-bold text-slate-900 text-lg leading-tight">Configuración de APIs</h3>
-            <p class="text-xs text-slate-500">Conecta tu API gratuita de Coarena y CNE</p>
+            <p class="text-xs text-slate-500">Estado de las conexiones del servidor</p>
           </div>
         </div>
         <button id="btn-close-settings" class="text-slate-400 hover:text-slate-600 p-1">
@@ -341,67 +361,38 @@
       <div class="mb-5 bg-gradient-to-br from-violet-50/70 to-indigo-50/70 p-4 rounded-2xl border border-violet-100">
         <div class="flex items-center justify-between mb-2">
           <span class="text-xs font-black uppercase tracking-wider text-violet-900 flex items-center gap-1.5">
-            <span class="w-2 h-2 rounded-full bg-violet-600 animate-ping"></span>
-            🤖 API Coarena (Búsquedas en Internet con IA)
+            <span class="w-2 h-2 rounded-full bg-violet-600"></span>
+            🤖 Asistente IA Coarena
           </span>
           <span id="coarena-status-badge" class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-200 text-slate-600">
             No configurada
           </span>
         </div>
         <p class="text-xs text-slate-600 mb-3 leading-relaxed">
-          Permite realizar búsquedas inteligentes, comparaciones de combustible y consultas en lenguaje natural integradas con Waze.
+          Responde usando la información de estaciones que se comparte con la consulta. No es una búsqueda web ni sustituye los datos oficiales.
         </p>
-
-        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
-          Clave API Coarena (APIKEY_COARENA)
-        </label>
-        <div class="relative mb-2">
-          <input 
-            type="password" 
-            id="coarena-api-key-input" 
-            placeholder="Pega aquí tu clave API de Coarena"
-            class="w-full bg-white border border-violet-200 text-slate-900 text-sm rounded-xl p-2.5 pr-10 focus:ring-2 focus:ring-violet-500 font-mono">
-          <button 
-            type="button" 
-            id="btn-toggle-coarena-key" 
-            class="absolute right-3 top-2.5 text-slate-400 hover:text-slate-600 text-xs font-semibold">
-            Ver
-          </button>
-        </div>
-
-        <div class="flex items-center justify-between text-[11px] text-slate-500">
-          <span>Obtén tu clave gratuita en:</span>
-          <a href="https://coarena.ai/account/api" target="_blank" rel="noopener noreferrer" class="font-bold text-violet-700 hover:underline inline-flex items-center gap-1">
-            coarena.ai/account/api ↗
-          </a>
-        </div>
+        <p class="text-xs text-slate-600">La clave API sólo se configura en el servidor como <code>APIKEY_COARENA</code>; no se guarda en este navegador.</p>
+        <a href="https://coarena.ai/account/api" target="_blank" rel="noopener noreferrer" class="mt-2 inline-flex text-[11px] font-bold text-violet-700 hover:underline">Gestionar clave Coarena ↗</a>
       </div>
 
       <!-- Sección CNE API -->
       <div class="mb-5 bg-slate-50 p-4 rounded-2xl border border-slate-200">
-        <span class="text-xs font-black uppercase tracking-wider text-slate-700 block mb-1.5">
-          🇨🇱 Token CNE (Comisión Nacional de Energía)
-        </span>
-        <p class="text-xs text-slate-500 mb-3 leading-relaxed">
-          Sincronización directa con los datos oficiales de bencinas del gobierno de Chile.
-        </p>
-        <input 
-          type="text" 
-          id="cne-token-input" 
-          placeholder="Ingresa tu token CNE o déjalo en blanco"
-          class="w-full bg-white border border-slate-300 text-slate-900 text-sm rounded-xl p-2.5 focus:ring-2 focus:ring-sky-500 font-mono mb-2">
-        <div class="flex items-center justify-between text-[11px] text-slate-400">
-          <span>Token gratuito en:</span>
-          <a href="https://api.cne.cl" target="_blank" class="text-sky-600 font-semibold hover:underline">api.cne.cl ↗</a>
+        <div class="flex items-center justify-between gap-3 mb-1.5">
+          <span class="text-xs font-black uppercase tracking-wider text-slate-700">🇨🇱 API CNE</span>
+          <span id="cne-status-badge" class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-200 text-slate-600">Sin comprobar</span>
         </div>
+        <p class="text-xs text-slate-500 mb-3 leading-relaxed">
+          El token se define en el entorno del servidor con <code>CNE_TOKEN</code>. Nunca se guarda ni se transmite desde el navegador.
+        </p>
+        <a href="https://api.cne.cl" target="_blank" rel="noopener noreferrer" class="text-[11px] text-sky-600 font-semibold hover:underline">Portal de la API CNE ↗</a>
       </div>
 
       <div class="flex items-center justify-end gap-2 pt-3 border-t border-slate-100">
-        <button 
-          id="btn-save-settings" 
+        <button
+          id="btn-refresh-api-status"
           type="button"
           class="w-full py-3 px-4 bg-gradient-to-r from-violet-600 to-sky-600 hover:from-violet-700 hover:to-sky-700 text-white font-bold text-sm rounded-xl shadow-md shadow-violet-200 transition-all">
-          Guardar Todas las Configuraciones
+          Actualizar estado
         </button>
       </div>
     </div>
@@ -422,11 +413,11 @@
           <div>
             <div class="flex items-center gap-2">
               <h3 class="font-bold text-slate-900 text-base sm:text-lg">Asistente Coarena AI</h3>
-              <span class="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-violet-100 text-violet-800 border border-violet-200">
-                Internet Search ⚡
+          <span class="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-violet-100 text-violet-800 border border-violet-200">
+                Datos de esta vista
               </span>
             </div>
-            <p class="text-xs text-slate-400">Pregunta en lenguaje natural sobre bencinas, rutas y ahorro</p>
+            <p class="text-xs text-slate-400">Consulta los precios visibles y opciones de ahorro</p>
           </div>
         </div>
         <button id="btn-close-coarena" class="text-slate-400 hover:text-slate-600 p-1.5 rounded-xl hover:bg-slate-100 transition-colors">
@@ -448,7 +439,7 @@
           🏪 Bencineras 24h con tienda
         </button>
         <button type="button" class="coarena-prompt-chip whitespace-nowrap text-xs font-semibold px-2.5 py-1.5 rounded-lg bg-slate-100 hover:bg-violet-50 hover:text-violet-700 text-slate-700 transition-colors">
-          📈 Proyección precios esta semana
+          🧭 ¿Cómo elegir la opción más conveniente?
         </button>
       </div>
 
@@ -456,10 +447,10 @@
       <div id="coarena-chat-history" class="flex-1 overflow-y-auto py-4 space-y-3 min-h-[220px]">
         <div class="bg-violet-50/60 rounded-2xl p-4 text-xs text-slate-700 border border-violet-100">
           <p class="font-bold text-violet-900 mb-1 flex items-center gap-1.5">
-            <span>👋 ¡Hola! Soy tu asistente de precios con IA Coarena.</span>
+            <span>👋 Hola, soy tu asistente de precios con IA Coarena.</span>
           </p>
           <p class="leading-relaxed">
-            Puedo comparar precios de bencina en Chile, calcular cuánto dinero te ahorras por litro o estanque completo y darte la mejor ruta directa a <strong>Waze</strong>. Hazme cualquier pregunta o toca uno de los botones rápidos de arriba.
+            Puedo ayudarte a comparar los precios que ves en pantalla y estimar el ahorro por estanque. Mis respuestas no son una búsqueda web ni reemplazan la información oficial. Haz una consulta o elige una sugerencia.
           </p>
         </div>
       </div>

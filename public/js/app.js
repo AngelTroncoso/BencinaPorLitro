@@ -291,7 +291,7 @@ function renderList(stations) {
         <!-- Header de la Card -->
         <div class="flex items-start justify-between gap-3 mb-2">
           <div class="flex items-center gap-2.5">
-            <span class="inline-flex items-center justify-center w-8 h-8 rounded-xl font-bold text-xs" style="background-color: ${brandInfo.bgColor}; color: ${brandInfo.textColor};">
+            <span class="brand-avatar" style="background-color: ${brandInfo.bgColor}; color: ${brandInfo.textColor};">
               ${brandInfo.name.substring(0, 2).toUpperCase()}
             </span>
             <div>
@@ -693,29 +693,35 @@ function setupEventListeners() {
   const openSettingsBtn = document.getElementById("btn-open-settings");
   const closeSettingsBtn = document.getElementById("btn-close-settings");
   const settingsModal = document.getElementById("settings-modal");
-  const saveSettingsBtn = document.getElementById("btn-save-settings");
-  const cneInput = document.getElementById("cne-token-input");
-  const coarenaInput = document.getElementById("coarena-api-key-input");
-  const toggleKeyBtn = document.getElementById("btn-toggle-coarena-key");
   const coarenaBadge = document.getElementById("coarena-status-badge");
+  const cneBadge = document.getElementById("cne-status-badge");
+  const refreshStatusBtn = document.getElementById("btn-refresh-api-status");
 
-  function updateCoarenaBadge() {
-    if (!coarenaBadge) return;
-    if (coarenaService.hasApiKey()) {
-      coarenaBadge.textContent = "Activa ✓";
-      coarenaBadge.className = "px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-200";
-    } else {
-      coarenaBadge.textContent = "No configurada";
-      coarenaBadge.className = "px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-200 text-slate-600";
+  async function updateConnectionBadges() {
+    const [coarenaStatus, cneStatus] = await Promise.all([
+      coarenaService.getStatus(),
+      cneService.getStatus()
+    ]);
+
+    if (coarenaBadge) {
+      coarenaBadge.textContent = !coarenaStatus.available ? "No disponible" : coarenaStatus.configured ? "Configurada ✓" : "Requiere servidor";
+      coarenaBadge.className = coarenaStatus.configured
+        ? "px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-200"
+        : "px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-200 text-slate-600";
+    }
+
+    if (cneBadge) {
+      cneBadge.textContent = !cneStatus.available ? "No disponible" : cneStatus.configured ? "Configurada ✓" : "Datos locales";
+      cneBadge.className = cneStatus.configured
+        ? "px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-200"
+        : "px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-200 text-slate-600";
     }
   }
 
   if (openSettingsBtn && settingsModal) {
     openSettingsBtn.addEventListener("click", () => {
-      if (cneInput) cneInput.value = cneService.getToken();
-      if (coarenaInput) coarenaInput.value = coarenaService.getApiKey();
-      updateCoarenaBadge();
       settingsModal.classList.remove("hidden");
+      updateConnectionBadges();
     });
   }
 
@@ -725,27 +731,8 @@ function setupEventListeners() {
     });
   }
 
-  if (toggleKeyBtn && coarenaInput) {
-    toggleKeyBtn.addEventListener("click", () => {
-      if (coarenaInput.type === "password") {
-        coarenaInput.type = "text";
-        toggleKeyBtn.textContent = "Ocultar";
-      } else {
-        coarenaInput.type = "password";
-        toggleKeyBtn.textContent = "Ver";
-      }
-    });
-  }
-
-  if (saveSettingsBtn) {
-    saveSettingsBtn.addEventListener("click", () => {
-      if (cneInput) cneService.setToken(cneInput.value);
-      if (coarenaInput) coarenaService.setApiKey(coarenaInput.value);
-      updateCoarenaBadge();
-      settingsModal.classList.add("hidden");
-      alert("Configuraciones guardadas correctamente.");
-      loadStations();
-    });
+  if (refreshStatusBtn) {
+    refreshStatusBtn.addEventListener("click", updateConnectionBadges);
   }
 
   // Asistente Coarena AI
@@ -773,7 +760,7 @@ function setupEventListeners() {
   // Quick chips de consulta
   document.querySelectorAll(".coarena-prompt-chip").forEach(chip => {
     chip.addEventListener("click", () => {
-      const promptText = chip.textContent.replace(/^[⛽💰🏪📈]\s*/, '').trim();
+      const promptText = chip.textContent.trim().replace(/^[⛽💰🏪📈🧭]\s*/, '').trim();
       if (coarenaQueryInput) {
         coarenaQueryInput.value = promptText;
         handleCoarenaSubmit(promptText);
@@ -793,10 +780,14 @@ function setupEventListeners() {
   async function handleCoarenaSubmit(query) {
     if (!coarenaHistory) return;
 
-    // Verificar si hay clave o avisar amablemente
-    if (!coarenaService.hasApiKey()) {
+    // Verificar la configuración del servidor; las claves nunca se guardan en el navegador.
+    const apiStatus = await coarenaService.getStatus();
+    if (!apiStatus.configured) {
       renderUserMessage(query);
-      renderBotMessage(`⚠️ <strong>API Key de Coarena no encontrada</strong><br><br>Para realizar consultas y búsquedas con IA, ingresa tu <strong>APIKEY_COARENA</strong> en <button type="button" onclick="document.getElementById('coarena-modal').classList.add('hidden'); document.getElementById('btn-open-settings').click();" class="text-violet-600 font-bold underline">Configuración de APIs</button>.<br><br>Puedes obtener tu clave gratuita en <a href="https://coarena.ai/account/api" target="_blank" class="text-violet-700 underline font-semibold">coarena.ai/account/api ↗</a>.`);
+      const message = apiStatus.available
+        ? `⚠️ <strong>Asistente no configurado</strong><br><br>Define <code>APIKEY_COARENA</code> en las variables de entorno del servidor y vuelve a intentarlo. Por seguridad, la clave no se introduce ni se guarda en el navegador. Puedes obtenerla en <a href="https://coarena.ai/account/api" target="_blank" rel="noopener noreferrer" class="text-violet-700 underline font-semibold">coarena.ai/account/api ↗</a>.`
+        : `⚠️ <strong>API no disponible</strong><br><br>El asistente necesita que la aplicación se ejecute en el servidor Node o en Vercel. La vista abierta como archivo local no puede acceder a esta función.`;
+      renderBotMessage(message);
       if (coarenaQueryInput) coarenaQueryInput.value = '';
       return;
     }

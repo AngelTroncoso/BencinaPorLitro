@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none" role="img" aria-labelledby="title">
+  <title id="title">BencinaChile</title>
+  <defs>
+    <linearGradient id="brand" x1="8" y1="5" x2="57" y2="59" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#0EA5E9"/>
+      <stop offset="1" stop-color="#0F766E"/>
+    </linearGradient>
+  </defs>
+  <rect x="2" y="2" width="60" height="60" rx="19" fill="url(#brand)"/>
+  <path d="M32 11.5c-8.4 0-15.2 6.8-15.2 15.2 0 11.2 15.2 25.8 15.2 25.8s15.2-14.6 15.2-25.8c0-8.4-6.8-15.2-15.2-15.2Z" fill="#fff" fill-opacity=".96"/>
+  <circle cx="32" cy="26.5" r="5.2" fill="#0F766E"/>
+  <path d="M10 48.5h11.5" stroke="#BAF7E7" stroke-width="3" stroke-linecap="round"/>
+  <path d="M42.5 48.5H54" stroke="#BAF7E7" stroke-width="3" stroke-linecap="round"/>
+</svg>

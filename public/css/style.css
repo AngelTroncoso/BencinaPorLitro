@@ -169,3 +169,188 @@
     display: none !important;
   }
 }
+
+.brand-mark {
+  width: 2.75rem;
+  height: 2.75rem;
+  flex: 0 0 auto;
+  filter: drop-shadow(0 5px 10px rgba(14, 116, 144, 0.2));
+}
+
+.hero-panel__inner {
+  position: relative;
+  isolation: isolate;
+  min-height: 365px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 1.75rem;
+  background: #0b1b2b;
+  box-shadow: 0 24px 60px -34px rgba(2, 23, 38, 0.55);
+}
+
+.hero-panel__art {
+  position: absolute;
+  z-index: -2;
+  inset: 0 0 0 auto;
+  width: 72%;
+  height: 100%;
+  object-fit: cover;
+  object-position: right center;
+}
+
+.hero-panel__inner::before {
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  background: linear-gradient(90deg, #0b1b2b 0%, rgba(11, 27, 43, 0.98) 34%, rgba(11, 27, 43, 0.78) 55%, rgba(11, 27, 43, 0.1) 100%);
+  content: "";
+}
+
+.hero-panel__copy {
+  max-width: 680px;
+  padding: clamp(1.5rem, 5vw, 3.5rem);
+  color: #f8fafc;
+}
+
+.hero-kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  color: #a5f3fc;
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+}
+
+.hero-kicker__dot {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 999px;
+  background: #34d399;
+  box-shadow: 0 0 0 4px rgba(52, 211, 153, 0.16);
+}
+
+.hero-panel h1 {
+  max-width: 610px;
+  margin: 1rem 0 0;
+  color: #fff;
+  font-size: clamp(2.25rem, 5.1vw, 4.25rem);
+  font-weight: 800;
+  letter-spacing: -0.055em;
+  line-height: 1.04;
+}
+
+.hero-panel h1 span {
+  color: #6ee7d8;
+}
+
+.hero-panel__copy > p {
+  max-width: 490px;
+  margin: 1rem 0 0;
+  color: #cbd5e1;
+  font-size: clamp(0.92rem, 1.4vw, 1.05rem);
+  line-height: 1.7;
+}
+
+.hero-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-top: 1.35rem;
+  border: 1px solid rgba(167, 243, 208, 0.5);
+  border-radius: 0.9rem;
+  padding: 0.8rem 1.05rem;
+  background: linear-gradient(135deg, #34d399, #2dd4bf);
+  color: #082f3a;
+  font-size: 0.86rem;
+  font-weight: 800;
+  text-decoration: none;
+  box-shadow: 0 10px 26px rgba(45, 212, 191, 0.2);
+  transition: transform 180ms ease, box-shadow 180ms ease;
+}
+
+.hero-cta:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 14px 32px rgba(45, 212, 191, 0.3);
+}
+
+.hero-cta svg {
+  width: 1.1rem;
+  height: 1.1rem;
+}
+
+.hero-brand-strip {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 1.65rem;
+}
+
+.hero-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.38rem;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 999px;
+  padding: 0.27rem 0.58rem 0.27rem 0.3rem;
+  background: rgba(15, 23, 42, 0.52);
+  color: #e2e8f0;
+  font-size: 0.68rem;
+  font-weight: 700;
+  backdrop-filter: blur(8px);
+}
+
+.hero-brand b,
+.brand-avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.65rem;
+  font-size: 0.62rem;
+  font-weight: 900;
+  letter-spacing: -0.05em;
+}
+
+.hero-brand b {
+  width: 1.35rem;
+  height: 1.35rem;
+  background: #f8fafc;
+  color: #0f172a;
+}
+
+.hero-brand--copec b { color: #075985; }
+.hero-brand--shell b { color: #be123c; }
+.hero-brand--petrobras b { color: #047857; }
+.hero-brand--aramco b { color: #0369a1; }
+.hero-brand--jlc b { color: #b45309; }
+
+.brand-avatar {
+  width: 2.5rem;
+  height: 2.5rem;
+  flex: 0 0 auto;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  box-shadow: 0 5px 12px rgba(15, 23, 42, 0.08);
+}
+
+.station-card {
+  border-radius: 1.35rem;
+  background: linear-gradient(145deg, #fff 0%, #fbfdff 100%);
+}
+
+@media (max-width: 640px) {
+  .hero-panel { margin-top: 0.9rem; }
+  .hero-panel__inner { min-height: 470px; border-radius: 1.3rem; }
+  .hero-panel__art { width: 100%; opacity: 0.58; object-position: 65% center; }
+  .hero-panel__inner::before { background: linear-gradient(180deg, rgba(11, 27, 43, 0.48) 0%, rgba(11, 27, 43, 0.92) 48%, #0b1b2b 100%); }
+  .hero-panel__copy { padding: 1.45rem; }
+  .hero-brand-strip { gap: 0.38rem; margin-top: 1.2rem; }
+  .hero-brand { font-size: 0.63rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-cta,
+  .station-card,
+  .btn-waze { transition: none; }
+  .price-marker-pin.is-cheapest { animation: none; }
+}
