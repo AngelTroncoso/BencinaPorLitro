@@ -1,127 +1,127 @@
-// Servicio de integración con la API de la Comisión Nacional de Energía (CNE)
-// Permite consultar datos oficiales en tiempo real o usar la base de datos local enriquecida.
-
+// Integración con la API de la Comisión Nacional de Energía (CNE).
+// El token vive exclusivamente en el servidor; el navegador nunca lo almacena ni lo envía.
 class CneService {
   constructor() {
-    this.storageKey = 'bencinas_cne_token';
     this.cacheKey = 'bencinas_stations_cache';
     this.cacheExpiryKey = 'bencinas_cache_expiry';
-    this.cacheDuration = 30 * 60 * 1000; // 30 minutos de caché
-  }
+    this.cacheDuration = 30 * 60 * 1000; // 30 minutos
 
-  getToken() {
-    return localStorage.getItem(this.storageKey) || '';
-  }
-
-  setToken(token) {
-    if (token) {
-      localStorage.setItem(this.storageKey, token.trim());
-    } else {
-      localStorage.removeItem(this.storageKey);
+    // Elimina el token de versiones anteriores, que se guardaba en localStorage.
+    try {
+      localStorage.removeItem('bencinas_cne_token');
+    } catch (error) {
+      // La aplicación debe seguir funcionando aunque el navegador bloquee storage.
     }
   }
 
-  hasToken() {
-    const t = this.getToken();
-    return !!t && t.length > 5;
+  async getStatus() {
+    try {
+      const response = await fetch('/api/cne/status');
+      if (!response.ok) return { configured: false, available: false };
+      const status = await response.json();
+      return { configured: status.configured === true, available: true };
+    } catch (error) {
+      return { configured: false, available: false };
+    }
   }
 
-  // Obtener estaciones para una región o comuna
   async getStations(regionId, comunaName, fallbackCenter) {
-    const token = this.getToken();
-    
-    // Si hay token CNE, intentamos consultar a través de nuestro proxy seguro
-    if (token) {
-      try {
-        const cached = this.getFromCache();
-        if (cached && cached.length > 0) {
-          return this.filterByRegionComuna(cached, regionId, comunaName);
-        }
-
-        const res = await fetch(`/api/cne/estaciones?token=${encodeURIComponent(token)}`);
-        if (res.ok) {
-          const data = await res.json();
-          if (data && data.data && Array.isArray(data.data)) {
-            const mapped = this.mapCneData(data.data);
-            this.saveToCache(mapped);
-            return this.filterByRegionComuna(mapped, regionId, comunaName);
-          }
-        }
-      } catch (err) {
-        console.warn('Fallo al obtener datos de CNE API, usando datos locales:', err);
-      }
+    const status = await this.getStatus();
+    if (!status.configured) {
+      return this.getLocalStations(regionId, comunaName, fallbackCenter);
     }
 
-    // Usar datos locales integrados
+    const cached = this.getFromCache();
+    if (cached && cached.length > 0) {
+      return this.filterByRegionComuna(cached, regionId, comunaName);
+    }
+
+    try {
+      const response = await fetch('/api/cne/estaciones');
+      if (!response.ok) throw new Error(`CNE respondió con estado ${response.status}`);
+
+      const data = await response.json();
+      if (data && Array.isArray(data.data)) {
+        const mapped = this.mapCneData(data.data);
+        if (mapped.length > 0) {
+          this.saveToCache(mapped);
+          return this.filterByRegionComuna(mapped, regionId, comunaName);
+        }
+      }
+    } catch (error) {
+      console.warn('No fue posible consultar CNE; se usarán los datos locales.', error);
+    }
+
     return this.getLocalStations(regionId, comunaName, fallbackCenter);
   }
 
-  // Filtrado de estaciones locales con generador procedural si la comuna no tiene estaciones en el seed inicial
   getLocalStations(regionId, comunaName, fallbackCenter) {
-    let stations = INITIAL_GAS_STATIONS.filter(s => {
-      if (regionId && s.regionId !== regionId) return false;
-      if (comunaName && comunaName !== "Todas" && s.comuna.toLowerCase() !== comunaName.toLowerCase()) return false;
+    let stations = INITIAL_GAS_STATIONS.filter(station => {
+      if (regionId && station.regionId !== regionId) return false;
+      if (comunaName && comunaName !== 'Todas' && station.comuna.toLowerCase() !== comunaName.toLowerCase()) return false;
       return true;
     });
 
-    // Si la comuna seleccionada no tiene estaciones en el seed fijo, generamos estaciones realistas para esa comuna
-    if (comunaName && comunaName !== "Todas" && stations.length === 0) {
+    if (comunaName && comunaName !== 'Todas' && stations.length === 0) {
       stations = generateDynamicStationsForComuna(regionId, comunaName, fallbackCenter);
     }
 
     return stations;
   }
 
-  // Transforma el payload crudo de CNE al formato limpio de la aplicación
   mapCneData(cneList) {
-    return cneList.map((item, idx) => {
-      // Normalizar marca
-      const dist = (item.distribuidor?.nombre || item.razon_social || '').toLowerCase();
+    return cneList.map((item, index) => {
+      const distributor = (item.distribuidor?.nombre || item.razon_social || '').toLowerCase();
       let brand = 'independiente';
-      if (dist.includes('copec')) brand = 'copec';
-      else if (dist.includes('shell')) brand = 'shell';
-      else if (dist.includes('petrobras')) brand = 'petrobras';
-      else if (dist.includes('aramco')) brand = 'aramco';
-      else if (dist.includes('jlc')) brand = 'jlc';
+      if (distributor.includes('copec')) brand = 'copec';
+      else if (distributor.includes('shell')) brand = 'shell';
+      else if (distributor.includes('petrobras')) brand = 'petrobras';
+      else if (distributor.includes('aramco')) brand = 'aramco';
+      else if (distributor.includes('jlc')) brand = 'jlc';
 
-      // Mapear precios
       const prices = {};
       if (item.precios && typeof item.precios === 'object') {
-        // CNE reporta códigos tipo '93', '95', '97', 'diesel', 'kerosene', 'glp'
-        for (const [key, val] of Object.entries(item.precios)) {
-          const num = parseFloat(String(val).replace(/[^0-9.]/g, ''));
-          if (key.includes('93')) prices.gasolina93 = num;
-          if (key.includes('95')) prices.gasolina95 = num;
-          if (key.includes('97')) prices.gasolina97 = num;
-          if (key.includes('diesel') || key.includes('petroleo')) prices.diesel = num;
-          if (key.includes('kero') || key.includes('parafina')) prices.kerosene = num;
-          if (key.includes('glp')) prices.glp = num;
+        for (const [key, value] of Object.entries(item.precios)) {
+          const price = Number(String(value).replace(/[^0-9-]/g, ''));
+          if (!Number.isFinite(price) || price <= 0) continue;
+          if (key.includes('93')) prices.gasolina93 = price;
+          if (key.includes('95')) prices.gasolina95 = price;
+          if (key.includes('97')) prices.gasolina97 = price;
+          if (key.includes('diesel') || key.includes('petroleo')) prices.diesel = price;
+          if (key.includes('kero') || key.includes('parafina')) prices.kerosene = price;
+          if (key.includes('glp')) prices.glp = price;
         }
       }
 
+      const opening = item.apertura_24_horas;
+      const isOpen24Hours = opening === 1 || opening === '1' || opening === true ||
+        ['si', 'sí', 'true'].includes(String(opening).toLowerCase());
+
       return {
-        id: `cne-${item.id || idx}`,
+        id: `cne-${item.id || index}`,
         name: item.nombre || `${BRANDS[brand]?.name || 'Estación'} - ${item.direccion_calle || 'Central'}`,
-        brand: brand,
+        brand,
         address: `${item.direccion_calle || 'Dirección'} ${item.direccion_numero || ''}`.trim(),
         comuna: item.nombre_comuna || item.comuna || 'Chile',
         regionId: String(item.id_region || '13'),
-        lat: parseFloat(item.latitud || item.lat),
-        lng: parseFloat(item.longitud || item.lng),
-        prices: Object.keys(prices).length > 0 ? prices : { gasolina93: 1190, gasolina95: 1240, gasolina97: 1300, diesel: 960 },
-        open24h: item.apertura_24_horas === 1 || true,
-        services: ["tienda", "bano"],
-        paymentMethods: ["efectivo", "tarjeta"],
-        rating: 4.5,
-        lastUpdate: "CNE Oficial"
+        lat: Number.parseFloat(item.latitud || item.lat),
+        lng: Number.parseFloat(item.longitud || item.lng),
+        prices,
+        open24h: isOpen24Hours,
+        services: [],
+        paymentMethods: [],
+        rating: null,
+        lastUpdate: 'CNE Oficial'
       };
-    }).filter(s => !isNaN(s.lat) && !isNaN(s.lng));
+    }).filter(station =>
+      Number.isFinite(station.lat) && Number.isFinite(station.lng) && Object.keys(station.prices).length > 0
+    );
   }
 
   filterByRegionComuna(list, regionId, comunaName) {
-    return list.filter(s => {
-      if (regionId && s.regionId !== regionId) return false;
-      if (comunaName && comunaName !== "Todas" && s.comuna.toLowerCase() !== comunaName.toLowerCase()) return false;
+    return list.filter(station => {
+      if (regionId && station.regionId !== regionId) return false;
+      if (comunaName && comunaName !== 'Todas' && station.comuna.toLowerCase() !== comunaName.toLowerCase()) return false;
       return true;
     });
   }
@@ -130,22 +130,20 @@ class CneService {
     try {
       localStorage.setItem(this.cacheKey, JSON.stringify(data));
       localStorage.setItem(this.cacheExpiryKey, String(Date.now() + this.cacheDuration));
-    } catch (e) {
-      console.warn('No se pudo guardar en caché local:', e);
+    } catch (error) {
+      console.warn('No se pudo guardar en caché local:', error);
     }
   }
 
   getFromCache() {
     try {
-      const expiry = localStorage.getItem(this.cacheExpiryKey);
-      if (expiry && Date.now() < parseInt(expiry, 10)) {
-        const raw = localStorage.getItem(this.cacheKey);
-        if (raw) return JSON.parse(raw);
-      }
-    } catch (e) {
+      const expiry = Number.parseInt(localStorage.getItem(this.cacheExpiryKey), 10);
+      if (!Number.isFinite(expiry) || Date.now() >= expiry) return null;
+      const raw = localStorage.getItem(this.cacheKey);
+      return raw ? JSON.parse(raw) : null;
+    } catch (error) {
       return null;
     }
-    return null;
   }
 }
 

@@ -1,73 +1,42 @@
-// Servicio de integración con la API de Coarena (coarena.ai) para búsquedas inteligentes
+// Cliente del asistente Coarena. Las credenciales se mantienen sólo en el servidor.
 class CoarenaService {
   constructor() {
-    this.storageKey = 'bencinas_coarena_api_key';
-    this.modelStorageKey = 'bencinas_coarena_model';
-    this.defaultModel = 'ministral-3-3b';
-  }
-
-  getApiKey() {
-    return localStorage.getItem(this.storageKey) || '';
-  }
-
-  setApiKey(key) {
-    if (key && key.trim()) {
-      localStorage.setItem(this.storageKey, key.trim());
-    } else {
-      localStorage.removeItem(this.storageKey);
+    try {
+      localStorage.removeItem('bencinas_coarena_api_key');
+      localStorage.removeItem('bencinas_coarena_model');
+    } catch (error) {
+      // El asistente sigue funcionando si el navegador bloquea localStorage.
     }
   }
 
-  hasApiKey() {
-    const key = this.getApiKey();
-    return !!key && key.length > 5;
-  }
-
-  getModel() {
-    return localStorage.getItem(this.modelStorageKey) || this.defaultModel;
-  }
-
-  setModel(model) {
-    if (model) {
-      localStorage.setItem(this.modelStorageKey, model);
+  async getStatus() {
+    try {
+      const response = await fetch('/api/coarena/status');
+      if (!response.ok) return { configured: false, available: false };
+      const status = await response.json();
+      return { configured: status.configured === true, available: true };
+    } catch (error) {
+      return { configured: false, available: false };
     }
   }
 
-  // Realizar consulta de búsqueda o recomendación inteligente
   async ask(query, context = {}) {
-    const apiKey = this.getApiKey();
-    const model = this.getModel();
-
     try {
       const response = await fetch('/api/coarena/search', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          query: query,
-          apiKey: apiKey,
-          model: model,
-          context: context
-        })
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ query, context })
       });
 
       const data = await response.json();
-
       if (!response.ok) {
         throw new Error(data.error || `Error ${response.status}: No se pudo completar la consulta.`);
       }
 
-      return {
-        success: true,
-        answer: data.answer
-      };
-    } catch (err) {
-      console.error('Error en CoarenaService:', err);
-      return {
-        success: false,
-        error: err.message
-      };
+      return { success: true, answer: data.answer };
+    } catch (error) {
+      console.error('Error en CoarenaService:', error);
+      return { success: false, error: error.message };
     }
   }
 }
